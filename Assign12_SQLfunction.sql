@@ -127,8 +127,7 @@ select emp_name, case
     else "Average" end as "Category" from employees;
     
 -- 30. Assign row numbers based on salary.
-select salary, row_number() over(order by salary desc) from employees
-order by salary desc;
+select salary, row_number() over(order by salary desc) from employees;
 
 -- 31. Rank employees based on salary.
 select emp_name,salary, rank() over(order by salary desc)
@@ -207,3 +206,75 @@ select rpad(emp_name, length(emp_name) + 2, "*") from employees;
 select repeat(emp_name, 2) from employees;
 
 -- 52. Display ASCII value of first character in employee names.
+select ascii(substr(emp_name, 1, 1)) from employees;
+
+-- 53. Convert ASCII values back to characters.
+SELECT char(ascii(substr(emp_name, 1, 1))) from employees;
+
+-- 54. Display day name from joining_date.
+select dayname(joining_date) from employees;
+
+-- 55. Display month name from joining_date.
+select monthname(joining_date) from employees;
+
+-- 56. Find last day of current month.
+select last_day(joining_date) from employees;
+
+-- 57. Find difference between current date and joining_date.
+select datediff(last_day(joining_date), joining_date) from employees;
+
+-- 58. Add 1 year to joining_date.
+select date_add(joining_date, interval 365 day) from employees;
+
+-- 59. Subtract 6 months from joining_date.
+select date_sub(joining_date, interval 180 day) from employees;
+
+-- 60. Format joining_date as DD-MM-YYYY.
+select date_format(joining_date, "%d-%m-%y") from employees;
+
+-- 61. Find employees who joined in a specific month.
+select emp_name, joining_date from employees
+where month(joining_date) = 1;
+
+-- 62. Find employees who joined on weekends.
+select emp_name, joining_date, dayname(joining_date) from employees
+where dayname(joining_date) = "Saturday" or "Sunday";
+
+-- 63. Display current database name.
+select database();
+
+-- 64. Display MySQL version.
+select version();
+
+-- 65. Generate UUID values.
+select uuid();
+
+-- 66. Generate random numbers using RAND().
+select rand();
+
+-- 67. Format salary with commas and decimal places.
+select format(salary, 2) from employees;
+
+-- 68. Find greatest value among salary, bonus, and age.
+select greatest(salary, bonus, age) from employees;
+    
+-- 69. Find least value among salary, bonus, and age.
+select least(salary, bonus, age) from employees;
+
+-- 70. Use COALESCE function with NULL values.
+select coalesce(null, null, emp_name, age) from employees;
+
+-- 71. Use NULLIF function with salary values.
+select nullif(salary, 20000) from employees;
+
+-- 72. Find employees whose names contain letter &#39;a&#39;.
+select emp_name from employees
+where emp_name like "%a%";
+
+-- 73. Find employees whose names end with &#39;n&#39;.
+select emp_name from employees
+where emp_name like "%n";
+
+-- 74. Display top 2 highest paid employees department-wise.
+select emp_name, department , salary from employees
+order by salary desc;

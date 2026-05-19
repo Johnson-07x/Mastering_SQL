@@ -27,7 +27,7 @@ INSERT INTO employees (emp_id, emp_name, department, salary, bonus, age, city, j
 (15, 'Lavanya', 'Testing', 53000.00, 5000.00, 28, 'Trichy', '2021-03-17');
 
 
-
+use learn_mysql;
 
 select * from employees;
 
@@ -202,3 +202,8 @@ select lpad(emp_name, length(emp_name) + 2, "*") from employees;
 
 -- 50. Pad employee names using RPAD function.
 select rpad(emp_name, length(emp_name) + 2, "*") from employees;
+
+-- 51. Repeat employee names using REPEAT function.
+select repeat(emp_name, 2) from employees;
+
+-- 52. Display ASCII value of first character in employee names.

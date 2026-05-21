@@ -276,5 +276,178 @@ select emp_name from employees
 where emp_name like "%n";
 
 -- 74. Display top 2 highest paid employees department-wise.
-select emp_name, department , salary from employees
-order by salary desc;
+SELECT emp_name, department, salary 
+FROM (
+    SELECT emp_name, department, salary,
+           DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS salary_rank
+    FROM employees
+) ranked_employees
+WHERE salary_rank <= 2;
+
+-- 75. Find cumulative salary using window functions.
+SELECT 
+    emp_name, 
+    salary,
+    SUM(salary) OVER (ORDER BY emp_name) AS cumulative_salary
+FROM employees;
+
+-- 76. Divide employees into groups using NTILE function.
+SELECT 
+    emp_name, 
+    department,
+    salary,
+    NTILE(4) OVER (ORDER BY salary DESC) AS salary_quartile
+FROM employees;
+
+-- 77. Display next salary using LEAD function.
+SELECT 
+    emp_name, 
+    salary,
+    LEAD(salary, 1, 0) OVER (ORDER BY salary DESC) AS next_lower_salary
+FROM employees;
+
+-- 78. Display first salary using FIRST_VALUE function.
+select emp_name, salary,
+first_value(salary) OVER (ORDER BY salary DESC) AS highest_company_salary
+FROM employees;
+
+-- 79. Display last salary using LAST_VALUE function.
+select emp_name, salary,
+last_value(salary) over(order by salary desc) as last_salary
+from employees;
+
+-- 80. Concatenate all employee names using GROUP_CONCAT.
+select group_concat(emp_name) from employees;
+
+-- 81. Count employees city-wise.
+select city, count(*) from employees
+GROUP BY city;
+
+-- 82. Find average salary city-wise.
+select city, avg(salary) from employees
+group by city;
+
+-- 83. Find highest salary in each department.
+select department, max(salary) from employees
+group by department;
+
+-- 84. Find lowest salary in each department.
+select department, min(salary) from employees
+group by department;
+
+-- 85. Find departments having more than 2 employees.
+select department, count(*) as emp_count from employees
+group by department
+having emp_count > 2;
+
+-- 86. Find employees with salary greater than department average.
+select emp_name, department, salary from employees e
+where salary > any(
+	select salary from employees
+    where department = e.department
+);
+
+-- 87. Find employees whose salary equals maximum salary.
+select emp_name, department from employees e
+where salary = (
+	select max(salary) from employees
+    where department = e.department
+);
+
+-- 88. Find employees whose age is greater than average age.
+select emp_name, age from employees
+where age > (select avg(age) from employees);
+
+-- 89. Display employee details with formatted joining dates.
+select date_format(joining_date, "%d-%m-%y") from employees;
+
+-- 90. Generate employee initials using string functions.
+SELECT 
+    emp_name,
+    CONCAT(
+        LEFT(emp_name, 1), 
+        SUBSTRING(emp_name, LOCATE(' ', emp_name) + 1, 1)
+    ) AS initials
+FROM employees;
+
+-- 91. Find number of days employees worked in company.
+select emp_name, joining_date, datediff(now(), joining_date) as "Days Worked"
+from employees;
+
+-- 92. Find employees who joined in the current year.
+select emp_name, joining_date from employees
+where year(joining_date) = year(now());
+
+-- 93. Find employees with palindrome names using REVERSE.
+select emp_name from employees
+where reverse(emp_name) = emp_name;
+
+-- 94. Find employees with even salaries using MOD function.
+select emp_name, salary, mod(salary, 2) from employees
+where mod(salary, 2) = 0;
+
+-- 95. Find employees with odd ages using MOD function.
+select emp_name, age from employees
+where mod(age, 2) = 0;
+
+-- 96. Display employees ordered randomly.
+select * from employees
+order by rand();
+
+-- 97. Create ranking without gaps using DENSE_RANK.
+SELECT 
+    emp_name, 
+    department,
+    salary,
+    DENSE_RANK() OVER (ORDER BY salary DESC) AS continuous_salary_rank
+FROM employees;
+
+-- 98. Find salary difference between current and previous employee.
+select emp_name, salary,
+lead(salary, 1, salary) over (order by salary desc) as next_employee_salary,
+(salary - lead(salary, 1, salary) over (order by salary desc)) as salary_difference
+from employees;
+
+-- 99. Display department-wise total salary using OVER clause.
+SELECT 
+    emp_name,
+    department,
+    salary,
+    SUM(salary) OVER(PARTITION BY department) AS department_total_salary
+FROM employees;
+
+-- 100. Generate complete employee report using multiple functions together.
+SELECT 
+    -- 1. Basic Details & Text Formatting
+    emp_id,
+    UPPER(emp_name) AS employee_name,
+    CONCAT(LEFT(emp_name, 1), SUBSTRING(emp_name, LOCATE(' ', emp_name) + 1, 1)) AS initials,
+    department,
+    
+    -- 2. Date Formatting
+    DATE_FORMAT(joining_date, '%d-%M-%Y') AS formatted_joining_date,
+    
+    -- 3. Salary Metrics & Window Rankings
+    salary,
+    DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_salary_rank,
+    
+    -- 4. Analytical Comparison Window Functions
+    SUM(salary) OVER (PARTITION BY department) AS dept_total_payroll,
+    AVG(salary) OVER (PARTITION BY department) AS dept_average_salary,
+    
+    -- 5. Next/Previous Comparisons
+    LEAD(salary, 1, 0) OVER (PARTITION BY department ORDER BY salary DESC) AS next_lower_dept_salary,
+    (salary - LEAD(salary, 1, salary) OVER (PARTITION BY department ORDER BY salary DESC)) AS salary_step_down,
+    
+    -- 6. Advanced Mathematical Logic (Percentage of Department Contribution)
+    ROUND((salary / SUM(salary) OVER (PARTITION BY department)) * 100, 2) AS payroll_contribution_pct,
+    
+    -- 7. Conditional Status using CASE WHEN
+    CASE 
+        WHEN salary > AVG(salary) OVER (PARTITION BY department) THEN 'Above Average'
+        WHEN salary = AVG(salary) OVER (PARTITION BY department) THEN 'Exact Average'
+        ELSE 'Below Average'
+    END AS salary_status
+
+FROM employees
+ORDER BY department, salary DESC;

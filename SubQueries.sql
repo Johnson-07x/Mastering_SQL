@@ -144,3 +144,10 @@ where salary = (
     limit 1
     offset 1
 );
+
+select department, salary from psr p
+where salary in (
+	select max(salary) from psr
+    where department = p.department
+    order by salary desc
+);

@@ -1,0 +1,317 @@
+create database practice_joins_subquery;
+use practice_joins_subquery;
+
+-----------------------------------
+-- [SQL JOIN Practice Questions] --
+-----------------------------------
+
+-- ============================================================================
+-- SECTION 1: CORE SCHEMA (Departments, Employees, Projects)
+-- Targets: Q1-Q15, Q22-Q23, Q26-Q27, Q30-Q31, Q36, Q41
+-- ============================================================================
+
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    hire_date DATE,
+    dept_id INT,
+    manager_id INT,
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id),
+    FOREIGN KEY (manager_id) REFERENCES employees(emp_id)
+);
+
+CREATE TABLE projects (
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE employee_projects (
+    emp_id INT,
+    project_id INT,
+    PRIMARY KEY (emp_id, project_id),
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id),
+    FOREIGN KEY (project_id) REFERENCES projects(project_id)
+);
+
+-- Insert Data
+INSERT INTO departments (dept_id, dept_name) VALUES
+(10, 'Executive'),
+(20, 'HR'),
+(30, 'Sales'),
+(40, 'Finance'),
+(50, 'IT'); -- IT has no employees (For Right Join tests)
+
+INSERT INTO employees (emp_id, emp_name, salary, hire_date, dept_id, manager_id) VALUES
+(1, 'Alice', 150000.00, '2020-01-15', 10, NULL),   -- CEO (No Manager)
+(2, 'Bob',   90000.00,  '2021-03-10', 20, 1),      -- HR Manager (Reports to Alice)
+(3, 'Charlie',110000.00, '2019-06-01', 30, 1),     -- Sales Manager (Joined EARLIER than manager Alice)
+(4, 'David',  95000.00,  '2021-08-22', 20, 2),      -- HR Specialist (Earns MORE than manager Bob)
+(5, 'Emma',   70000.00,  '2022-05-14', 30, 3),      -- Sales Rep (Same dept as manager Charlie)
+(6, 'Frank',  60000.00,  '2022-11-05', 40, 3),      -- Finance Staff (Different dept than manager)
+(7, 'Grace',  90000.00,  '2021-12-01', 20, 2),      -- HR Staff (Same salary & same hire year as Bob)
+(8, 'Henry',  55000.00,  '2023-02-28', NULL, NULL); -- No Department, No Manager
+
+INSERT INTO projects (project_id, project_name) VALUES
+(101, 'Project Alpha'),
+(102, 'Project Beta'),
+(103, 'Project Gamma'),
+(104, 'Project Delta'); -- Unassigned project
+
+INSERT INTO employee_projects (emp_id, project_id) VALUES
+(1, 101), (2, 101), (3, 102), (4, 102), (5, 103);
+
+
+-- ============================================================================
+-- SECTION 2: E-COMMERCE SCHEMA (Customers, Orders, Products, Sales, Suppliers, Categories)
+-- Targets: Q16-Q19, Q32-Q35, Q37, Q39, Q40, Q48
+-- ============================================================================
+
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    customer_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY,
+    category_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE suppliers (
+    supplier_id INT PRIMARY KEY,
+    supplier_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(50) NOT NULL,
+    category_id INT,
+    supplier_id INT,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
+);
+
+CREATE TABLE sales (
+    sale_id INT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE vendors (
+    vendor_id INT PRIMARY KEY,
+    vendor_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE purchase_orders (
+    po_id INT PRIMARY KEY,
+    po_amount DECIMAL(10,2),
+    vendor_id INT
+);
+
+-- Insert Data
+INSERT INTO customers (customer_id, customer_name) VALUES
+(1, 'Tom'), (2, 'Jerry'), (3, 'John'); -- John has no orders
+
+INSERT INTO orders (order_id, customer_id, order_date) VALUES
+(501, 1, '2026-01-10'), (502, 2, '2026-02-15'), (503, 1, '2026-03-20'),
+(504, NULL, '2026-03-25'); -- Order with no registered customer (For Full Join)
+
+INSERT INTO categories (category_id, category_name) VALUES
+(1, 'Electronics'), (2, 'Clothing'), (3, 'Books'); -- Books has no products
+
+INSERT INTO suppliers (supplier_id, supplier_name) VALUES
+(10, 'Apex Tech'), (20, 'Vogue Attire'), (30, 'Global Tradelink'); -- Global Tradelink supplies nothing
+
+INSERT INTO products (product_id, product_name, category_id, supplier_id) VALUES
+(201, 'Laptop', 1, 10), (202, 'T-Shirt', 2, 20), (203, 'Tablet', 1, 10),
+(204, 'Ghost Item', NULL, NULL); -- Product without category/supplier
+
+INSERT INTO sales (sale_id, order_id, product_id, quantity) VALUES
+(901, 501, 201, 1), (902, 502, 202, 2), (903, 503, 201, 1),
+(904, NULL, 203, 1); -- Sale entry with no order attached (For Full Join)
+
+INSERT INTO vendors VALUES (1, 'Acme Corp'), (2, 'Stark Industries'), (3, 'New Vendor Ltd');
+INSERT INTO purchase_orders VALUES (99, 5000.00, 1), (98, 12000.00, 2), (97, 350.00, NULL);
+
+
+-- ============================================================================
+-- SECTION 3: ACADEMIA & MEDIA SCHEMA (Students, Courses, Books, Authors, Libraries)
+-- Targets: Q20-Q21, Q24-Q25, Q28-Q29, Q38, Q42, Q45, Q47, Q50
+-- ============================================================================
+
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE enrollments (
+    student_id INT,
+    course_id INT,
+    PRIMARY KEY (student_id, course_id),
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
+CREATE TABLE authors (
+    author_id INT PRIMARY KEY,
+    author_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    author_id INT
+);
+
+CREATE TABLE book_issues (
+    issue_id INT PRIMARY KEY,
+    book_id INT,
+    student_id INT,
+    issue_date DATE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+CREATE TABLE teachers (
+    teacher_id INT PRIMARY KEY,
+    teacher_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE subjects (
+    subject_id INT PRIMARY KEY,
+    subject_name VARCHAR(50) NOT NULL,
+    teacher_id INT
+);
+
+CREATE TABLE movies (
+    movie_id INT PRIMARY KEY,
+    title VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE ratings (
+    rating_id INT PRIMARY KEY,
+    movie_id INT,
+    stars INT
+);
+
+CREATE TABLE libraries (
+    library_id INT PRIMARY KEY,
+    library_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE library_books (
+    lib_book_id INT PRIMARY KEY,
+    title VARCHAR(50) NOT NULL,
+    library_id INT
+);
+
+-- Insert Data
+INSERT INTO students (student_id, student_name) VALUES
+(1, 'Alex'), (2, 'Ryan'), (3, 'Sam'); -- Sam is not enrolled anywhere
+
+INSERT INTO courses (course_id, course_name) VALUES
+(301, 'SQL Basics'), (302, 'Web Dev'), (303, 'Data Science'); -- Data Science has no students
+
+INSERT INTO enrollments (student_id, course_id) VALUES
+(1, 301), (1, 302), (2, 301);
+
+INSERT INTO authors VALUES (10, 'George Orwell'), (20, 'J.K. Rowling'), (30, 'Unpublished Author');
+INSERT INTO books VALUES (401, '1984', 10), (402, 'Harry Potter', 20), (403, 'Anonymous Tales', NULL); -- Book with no author
+
+INSERT INTO book_issues (issue_id, book_id, student_id, issue_date) VALUES
+(801, 401, 1, '2026-04-01'), (802, 402, 2, '2026-04-05'); -- Book 403 is never issued
+
+INSERT INTO teachers VALUES (1, 'Prof. Higgins'), (2, 'Prof. Snape'), (3, 'Substitute Teacher');
+INSERT INTO subjects VALUES (10, 'English', 1), (20, 'Potions', 2), (30, 'Quantum Physics', NULL);
+
+INSERT INTO movies VALUES (1, 'Inception'), (2, 'Avatar'), (3, 'Unreleased Indie Film');
+INSERT INTO ratings VALUES (101, 1, 5), (102, 2, 4), (103, NULL, 3);
+
+INSERT INTO libraries VALUES (1, 'Central Library'), (2, 'Westside Reading Room'), (3, 'Archived Facility');
+INSERT INTO library_books VALUES (10, 'Moby Dick', 1), (20, 'Hamlet', 2), (30, 'Rare Manuscript', NULL);
+
+
+-- ============================================================================
+-- SECTION 4: HEALTHCARE, SPORTS, AVIATION & BANKING SCHEMA
+-- Targets: Q43, Q44, Q46, Q49
+-- ============================================================================
+
+CREATE TABLE doctors (
+    doctor_id INT PRIMARY KEY,
+    doctor_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE patients (
+    patient_id INT PRIMARY KEY,
+    patient_name VARCHAR(50) NOT NULL,
+    doctor_id INT
+);
+
+CREATE TABLE teams (
+    team_id INT PRIMARY KEY,
+    team_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE players (
+    player_id INT PRIMARY KEY,
+    player_name VARCHAR(50) NOT NULL,
+    team_id INT
+);
+
+CREATE TABLE branches (
+    branch_id INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE branch_employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    branch_id INT
+);
+
+CREATE TABLE airports (
+    airport_code VARCHAR(3) PRIMARY KEY,
+    airport_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE flights (
+    flight_id INT PRIMARY KEY,
+    flight_number VARCHAR(10),
+    origin_airport VARCHAR(3)
+);
+
+-- Insert Data
+INSERT INTO doctors VALUES (1, 'Dr. Smith'), (2, 'Dr. Adams'), (3, 'Dr. Unassigned');
+INSERT INTO patients VALUES (101, 'John Doe', 1), (102, 'Jane Roe', 2), (103, 'Lone Patient', NULL);
+
+INSERT INTO teams VALUES (1, 'Red Rockets'), (2, 'Blue Bombers'), (3, 'Green Giants');
+INSERT INTO players VALUES (10, 'Striker A', 1), (20, 'Defender B', 2), (30, 'Free Agent', NULL);
+
+INSERT INTO branches VALUES (1, 'Downtown'), (2, 'Uptown'), (3, 'Empty Outpost');
+INSERT INTO branch_employees VALUES (50, 'Cashier Fox', 1), (51, 'Teller Wolf', 2), (52, 'Remote Contractor', NULL);
+
+INSERT INTO airports VALUES ('JFK', 'John F. Kennedy'), ('LAX', 'Los Angeles'), ('ORD', 'O-Hare International');
+INSERT INTO flights VALUES (1, 'AA100', 'JFK'), (2, 'UA200', 'LAX'), (3, 'CH777', NULL);
+
+-- [SELF JOIN ] --
+-- 1. Find employees along with their manager names.

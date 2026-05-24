@@ -406,3 +406,693 @@ on e.dept_id = d.dept_id
 where d.dept_id is null;
 
 -- 16. Display all customers and their orders.
+select c.customer_name, o.order_id
+from customers c left join orders o
+on c.customer_id = o.customer_id;
+
+-- 17. Show customers who never placed orders.
+select c.customer_name
+from customers c left join orders o
+on c.customer_id = o.customer_id
+where o.order_id is null;
+
+-- 18. Display all products and their sales details.
+select p.product_name, s.*
+from products p left join sales s
+on p.product_id = s.product_id;
+
+-- 19. Find products that were never sold.
+select p.product_name, s.order_id
+from products p left join sales s
+on p.product_id = s.product_id
+where s.order_id is null;
+
+-- 20. Show all students with their course enrollments.
+select s.student_name, c.course_name
+from students s inner join enrollments e on s.student_id = e.student_id
+left join courses c on e.course_id = c.course_id;
+
+-- 21. Find students not enrolled in any course.
+select s.student_name
+from students s left join enrollments e
+on s.student_id = e.student_id
+where e.course_id is null;
+
+-- 22. Display all employees with project names if assigned.
+select e.emp_name, p.project_name
+from employees e left join employee_projects ep on e.emp_id = ep.emp_id
+left join projects p on ep.project_id = p.project_id;
+
+-- 23. Find employees not assigned to any project.
+select e.emp_name
+from employees e left join employee_projects ep on e.emp_id = ep.emp_id
+left join projects p on ep.project_id = p.project_id
+where ep.emp_id is null;
+
+-- 24. Display all books and issued records.
+select b.title, bi.*
+from books b left join book_issues bi
+on b.book_id = bi.book_id;
+
+-- 25. Find books never issued.
+select b.title
+from books b left join book_issues bi
+on b.book_id = bi.book_id
+where bi.book_id is null;
+
+-- 26. Display all departments with employee details.
+select d.dept_name, e.*
+from employees e right join departments d
+on d.dept_id = e.dept_id;
+
+-- 27. Find departments without employees.
+select d.dept_name
+from employees e right join departments d
+on e.dept_id = d.dept_id
+where e.emp_name is null;
+
+-- 28. Show all courses with enrolled students.
+select c.course_name, s.*
+from students s left join enrollments e on s.student_id = e.student_id
+right join courses c on e.course_id = c.course_id;
+
+-- 29. Find courses with no students enrolled.
+select c.course_name
+from enrollments e right join courses c
+on e.course_id = c.course_id
+where e.course_id is null;
+
+-- 30. Display all projects and assigned employees.
+select p.project_name, e.emp_name
+from employees e left join employee_projects ep on e.emp_id = ep.emp_id
+right join projects p on ep.project_id = p.project_id;
+
+-- 31. Find projects with no assigned employees.
+select p.project_name, e.emp_name
+from employees e left join employee_projects ep on e.emp_id = ep.emp_id
+right join projects p on ep.project_id = p.project_id
+where e.emp_name is null;
+
+-- 32. Show all suppliers and products supplied.
+select s.supplier_name, p.product_name
+from products p right join suppliers s
+on p.supplier_id = s.supplier_id;
+
+-- 33. Find suppliers supplying no products.
+select s.supplier_name, p.product_name
+from products p right join suppliers s
+on p.supplier_id = s.supplier_id
+where p.product_name is null;
+
+-- 34. Display all categories with products.
+select c.category_name, p.product_name
+from products p right join categories c
+on p.category_id = c.category_id;
+
+-- 35. Find categories having no products.
+select c.category_name, p.product_name
+from products p right join categories c
+on p.category_id = c.category_id
+where p.product_name is null;
+
+-- 36. Display all employees and all departments including unmatched rows.
+select e.emp_name, d.dept_name
+from employees e left join departments d on e.dept_id = d.dept_id
+union
+select e.emp_name, d.dept_name
+from employees e right join departments d on e.dept_id = d.dept_id;
+
+-- 37. Show all customers and all orders including customers without orders and orders without customers.
+select c.customer_name, o.order_id
+from customers c left join orders o on c.customer_id = o.customer_id
+union
+select c.customer_name, o.order_id
+from customers c right join orders o on c.customer_id = o.customer_id;
+
+-- 38. Display all students and all courses including unassigned records.
+SELECT s.student_name, c.course_name
+FROM students s LEFT JOIN enrollments e ON s.student_id = e.student_id
+LEFT JOIN courses c ON e.course_id = c.course_id
+UNION
+SELECT s.student_name, c.course_name
+FROM students s RIGHT JOIN enrollments e ON s.student_id = e.student_id
+RIGHT JOIN courses c ON e.course_id = c.course_id;
+
+-- 39. Show all products and sales including unsold products.
+select p.product_name, s.*
+from products p left join sales s on p.product_id = s.product_id
+union
+select p.product_name, s.*
+from products p right join sales s on p.product_id = s.product_id;
+
+-- 40. Display all suppliers and products including unmatched suppliers/products.
+select *
+from suppliers s left join products p on s.supplier_id = p.supplier_id
+union
+select *
+from suppliers s right join products p on s.supplier_id = p.supplier_id;
+
+-- 41. Find all employees and managers including employees without managers.
+select e.emp_name as Employee, m.emp_name as Manager
+from employees e left join employees m on e.manager_id = m.emp_id
+union
+select e.emp_name, m.emp_name
+from employees e left join employees m on e.manager_id = m.emp_id;
+
+-- 42. Show all authors and books including authors without books.
+select a.author_name, b.title
+from authors a left join books b on a.author_id = b.author_id
+union
+select a.author_name, b.title
+from authors a right join books b on a.author_id = b.author_id;
+
+-- 43. Display all doctors and patients including unmatched entries.
+select *
+from doctors d left join patients p on d.doctor_id = p.doctor_id
+union
+select *
+from doctors d right join patients p on d.doctor_id = p.doctor_id;
+
+-- 44. Show all teams and players including teams without players.
+select *
+from teams t left join players p on t.team_id = p.team_id
+union
+select *
+from teams t right join players p on t.team_id = p.team_id;
+
+-- 45. Display all movies and ratings including unrated movies.
+select *
+from movies m left join ratings r on m.movie_id = r.movie_id
+union
+select *
+from movies m right join ratings r on m.movie_id = r.movie_id;
+
+-- 46. Show all branches and employees including empty branches.
+select *
+from branches b left join branch_employees be on b.branch_id = be.branch_id
+union
+select *
+from branches b right join branch_employees be on b.branch_id = be.branch_id;
+
+-- 47. Display all teachers and subjects including unassigned subjects.
+select *
+from teachers t left join subjects s on t.teacher_id = s.teacher_id
+union
+select *
+from teachers t right join subjects s on t.teacher_id = s.teacher_id;
+
+-- 48. Show all vendors and purchase orders including unmatched rows.
+select *
+from vendors v left join purchase_orders po on v.vendor_id = po.vendor_id
+union
+select *
+from vendors v right join purchase_orders po on v.vendor_id = po.vendor_id;
+
+-- 49. Display all airports and flights including airports without flights.
+select *
+from airports a left join flights f on a.airport_code = f.origin_airport
+union
+select *
+from airports a right join flights f on a.airport_code = f.origin_airport;
+
+-- 50. Show all libraries and books including libraries without books.
+select *
+from libraries l left join library_books lb on l.library_id = lb.library_id
+union
+select *
+from libraries l right join library_books lb on l.library_id = lb.library_id;
+
+
+
+
+
+
+
+
+-- In the Below Section, Create and Insert queries are only generated by AI
+
+-- ============================================================================
+--                              [SubQueries]
+-- ============================================================================
+
+create database practice_subqueries;
+use practice_subqueries;
+
+-- ============================================================================
+-- SECTION 1 : DEPARTMENTS + EMPLOYEES + PROJECTS
+-- Covers:
+-- Q1-Q10, Q14-Q18, Q19-Q20, Q23, Q25-Q26, Q29, Q32, Q34,
+-- Q36-Q38, Q42, Q44, Q48, Q50
+-- ============================================================================
+
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    location VARCHAR(50)
+);
+
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50),
+    salary DECIMAL(10,2),
+    hire_date DATE,
+    dept_id INT,
+    manager_id INT,
+    team_name VARCHAR(50),
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+
+CREATE TABLE executive (
+    exec_id INT PRIMARY KEY,
+    manager_id INT
+);
+
+CREATE TABLE projects (
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(50),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+
+INSERT INTO departments VALUES
+(10, 'HR', 'Chennai'),
+(20, 'Sales', 'Bangalore'),
+(30, 'Finance', 'Delhi'),
+(40, 'IT', 'Mumbai'),
+(50, 'Support', 'Chennai');
+
+INSERT INTO employees VALUES
+(101, 'Ravi', 90000, '2021-01-10', 10, NULL, 'Alpha'),
+(102, 'Meena', 85000, '2020-03-15', 20, 101, 'Alpha'),
+(103, 'Kavi', 70000, '2022-07-01', 10, 101, 'Beta'),
+(104, 'Arun', 95000, '2019-09-20', 30, 102, 'Beta'),
+(105, 'Divya', 60000, '2023-01-11', 20, 102, 'Gamma'),
+(106, 'John', 120000, '2018-05-05', 40, NULL, 'Gamma'),
+(107, 'Sara', 55000, '2023-02-14', 40, 106, 'Gamma'),
+(108, 'David', 40000, '2024-01-01', 50, 101, 'Alpha'),
+(109, 'Priya', 75000, '2022-10-10', 10, 101, 'Beta'),
+(110, 'Vikram', 120000, '2021-08-08', 20, 106, 'Gamma');
+
+INSERT INTO executive VALUES
+(1, 101),
+(2, 106);
+
+INSERT INTO projects VALUES
+(1, 'ERP System', 40),
+(2, 'Payroll', 10),
+(3, 'CRM', 20),
+(4, 'Audit', 30);
+
+-- ============================================================================
+-- SECTION 2 : PRODUCTS + CUSTOMERS + ORDERS
+-- Covers:
+-- Q11, Q13, Q21-Q22, Q27, Q30, Q39-Q40, Q46-Q47, Q49
+-- ============================================================================
+
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY,
+    category_name VARCHAR(50)
+);
+
+CREATE TABLE suppliers (
+    supplier_id INT PRIMARY KEY,
+    supplier_name VARCHAR(50),
+    country VARCHAR(50)
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(50),
+    price DECIMAL(10,2),
+    category_id INT,
+    supplier_id INT,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
+);
+
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    customer_name VARCHAR(50)
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    product_id INT,
+    quantity INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+INSERT INTO categories VALUES
+(1, 'Electronics'),
+(2, 'Clothing'),
+(3, 'Books');
+
+INSERT INTO suppliers VALUES
+(1, 'TechCorp', 'India'),
+(2, 'FashionHub', 'USA'),
+(3, 'BookWorld', 'India');
+
+INSERT INTO products VALUES
+(101, 'Laptop', 75000, 1, 1),
+(102, 'Mobile', 40000, 1, 1),
+(103, 'TV', 55000, 1, 1),
+(104, 'Shirt', 2000, 2, 2),
+(105, 'Jeans', 3500, 2, 2),
+(106, 'SQL Book', 800, 3, 3),
+(107, 'AI Book', 1200, 3, 3);
+
+INSERT INTO customers VALUES
+(1, 'Tom'),
+(2, 'Jerry'),
+(3, 'Alex'),
+(4, 'Sam');
+
+INSERT INTO orders VALUES
+(1001, 1, 101, 1),
+(1002, 1, 102, 2),
+(1003, 2, 104, 3),
+(1004, 3, 103, 1),
+(1005, 2, 101, 1);
+
+-- ============================================================================
+-- SECTION 3 : STUDENTS + COURSES
+-- Covers:
+-- Q12, Q24, Q31, Q41
+-- ============================================================================
+
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(50),
+    marks INT
+);
+
+CREATE TABLE teachers (
+    teacher_id INT PRIMARY KEY,
+    teacher_name VARCHAR(50)
+);
+
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(50),
+    teacher_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id)
+);
+
+CREATE TABLE enrollments (
+    student_id INT,
+    course_id INT,
+    PRIMARY KEY(student_id, course_id),
+    FOREIGN KEY(student_id) REFERENCES students(student_id),
+    FOREIGN KEY(course_id) REFERENCES courses(course_id)
+);
+
+INSERT INTO students VALUES
+(1, 'Arun', 95),
+(2, 'Kumar', 88),
+(3, 'Deepa', 72),
+(4, 'Nila', 95),
+(5, 'Rakesh', 60);
+
+INSERT INTO teachers VALUES
+(1, 'John'),
+(2, 'Smith');
+
+INSERT INTO courses VALUES
+(101, 'SQL', 1),
+(102, 'Java', 1),
+(103, 'Python', 2);
+
+INSERT INTO enrollments VALUES
+(1, 101),
+(2, 101),
+(3, 102),
+(4, 103);
+
+-- ============================================================================
+-- SECTION 4 : BOOKS + AUTHORS
+-- Covers:
+-- Q17, Q28, Q43
+-- ============================================================================
+
+CREATE TABLE authors (
+    author_id INT PRIMARY KEY,
+    author_name VARCHAR(50),
+    country VARCHAR(50)
+);
+
+CREATE TABLE books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(100),
+    price DECIMAL(10,2),
+    category VARCHAR(50),
+    author_id INT,
+    FOREIGN KEY(author_id) REFERENCES authors(author_id)
+);
+
+INSERT INTO authors VALUES
+(1, 'George Orwell', 'USA'),
+(2, 'Chetan Bhagat', 'India'),
+(3, 'Rowling', 'UK');
+
+INSERT INTO books VALUES
+(1, '1984', 500, 'Fiction', 1),
+(2, '2 States', 300, 'Romance', 2),
+(3, 'Harry Potter', 800, 'Fantasy', 3),
+(4, 'Animal Farm', 450, 'Fiction', 1);
+
+-- ============================================================================
+-- SECTION 5 : MOVIES + RATINGS
+-- Covers:
+-- Q33
+-- ============================================================================
+
+CREATE TABLE movies (
+    movie_id INT PRIMARY KEY,
+    movie_name VARCHAR(50)
+);
+
+CREATE TABLE ratings (
+    rating_id INT PRIMARY KEY,
+    movie_id INT,
+    user_name VARCHAR(50),
+    stars INT,
+    FOREIGN KEY(movie_id) REFERENCES movies(movie_id)
+);
+
+INSERT INTO movies VALUES
+(1, 'Inception'),
+(2, 'Avatar'),
+(3, 'Interstellar');
+
+INSERT INTO ratings VALUES
+(1, 1, 'Tom', 5),
+(2, 1, 'Jerry', 4),
+(3, 2, 'Alex', 5);
+
+-- ============================================================================
+-- SECTION 6 : BRANCHES
+-- Covers:
+-- Q45
+-- ============================================================================
+
+CREATE TABLE branches (
+    branch_id INT PRIMARY KEY,
+    branch_name VARCHAR(50)
+);
+
+CREATE TABLE branch_employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50),
+    branch_id INT,
+    FOREIGN KEY(branch_id) REFERENCES branches(branch_id)
+);
+
+INSERT INTO branches VALUES
+(1, 'Chennai'),
+(2, 'Bangalore'),
+(3, 'Delhi');
+
+INSERT INTO branch_employees VALUES
+(1, 'A', 1),
+(2, 'B', 1),
+(3, 'C', 1),
+(4, 'D', 2),
+(5, 'E', 2);
+
+
+-- 1. Find employees earning more than the average salary.
+select emp_name, salary
+from employees
+where salary > (
+	select avg(salary)
+    from employees
+);
+
+-- 2. Find the employee with the highest salary.
+select emp_name, salary
+from employees
+where salary = (
+	select max(salary)
+    from employees
+);
+
+-- 3. Display employees working in the same department as ‘Ravi’.
+select emp_name, dept_id
+from employees
+where dept_id = (
+	select dept_id
+    from employees
+    where emp_name = "Ravi"
+);
+
+-- 4. Find employees hired after the employee ‘Kavi’.
+select emp_name, hire_date
+from employees
+where hire_date > (
+	select hire_date
+    from employees
+    where emp_name = "Kavi"
+);
+
+-- 5. Find the second highest salary.
+select emp_name, salary
+from employees
+where salary = (
+	select distinct salary
+    from employees
+    order by salary desc
+    limit 1
+    offset 1
+);
+
+-- 6. Display employees earning less than the company average salary.
+select emp_name, salary
+from employees
+where salary < (
+	select avg(salary)
+    from employees
+);
+
+-- 7. Find employees working in the department with maximum employees.
+select emp_name, dept_id
+from employees
+where dept_id in (
+	select dept_id
+    from employees
+    group by dept_id
+    having count(*) = (
+		select count(*)
+        from employees
+        group by dept_id
+        order by count(*) desc
+        limit 1
+    )
+);
+
+-- 8. Find employees whose salary equals the minimum salary.
+select emp_name, salary
+from employees
+where salary = (
+	select min(salary)
+    from employees
+);
+
+-- 9. Display employees working in the same location as ‘Meena’.
+select e.emp_name, d.location
+from employees e inner join departments d on e.dept_id = d.dept_id
+where d.location = (
+	select d.location
+    from employees e inner join departments d on e.dept_id = d.dept_id
+    where e.emp_name = "Meena"
+);
+
+-- 10. Find employees hired before the manager of employee 101.
+select emp_name, hire_date
+from employees
+where hire_date < (
+	select hire_date
+    from employees
+    where emp_id = (
+		select manager_id
+        from employees
+        where emp_id = 101
+    )
+);
+
+-- 11. Find products with price greater than average product price.
+select product_name
+from products
+where price > (
+	select avg(price)
+    from products
+);
+
+-- 12. Display students scoring above average marks.
+select student_name
+from students
+where marks > (
+	select avg(marks)
+    from students
+);
+
+-- 13. Find customers who made the highest purchase.
+select c.customer_name, (p.price * o.quantity) as purchase_amount
+from customers c join orders o on c.customer_id = o.customer_id
+join products p on o.product_id = p.product_id
+where (p.price * o.quantity) = (
+    select max(p.price * o.quantity)
+    from orders o
+    join products p
+    on o.product_id = p.product_id
+);
+
+-- 14. Display employees in the oldest department.
+select emp_name
+from employees
+where dept_id in (
+	select dept_id
+    from employees
+    where hire_date = (
+		select min(hire_date)
+        from employees
+    )
+);
+
+-- 15. Find employees earning more than their department average.
+select emp_name, dept_id, salary
+from employees e
+where salary > (
+	select avg(salary)
+    from employees
+    where dept_id = e.dept_id
+);
+
+-- 16. Find the latest joined employee.
+select emp_name, hire_date
+from employees
+where hire_date = (
+	select max(hire_date)
+    from employees
+);
+
+-- 17. Display books with price less than average book price.
+select title
+from books
+where price < (
+	select avg(price)
+    from books
+);
+
+-- 18. Find employees whose manager has the highest salary.
+select emp_name
+from employees
+where manager_id in (
+    select emp_id
+    from employees
+    where salary = (
+        select max(salary)
+        from employees
+    )
+);

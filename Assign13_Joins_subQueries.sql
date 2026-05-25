@@ -1096,3 +1096,330 @@ where manager_id in (
         from employees
     )
 );
+
+-- 19. Find employees working in departments located in Chennai or Bangalore.
+select e.emp_name, d.location
+from employees e left join departments d on e.dept_id = d.dept_id
+where e.dept_id in (
+	select dept_id
+	from departments
+	where location in ("Chennai", "Bangalore")
+);
+
+-- 20. Display employees whose salary matches salaries in HR department.
+select emp_name
+from employees
+where salary in (
+	select e.salary
+    from employees e left join departments d on e.dept_id = d.dept_id
+    where d.dept_name = "HR"
+);
+
+-- 21. Find products belonging to categories with more than 10 products.
+select product_name, category_id
+from products
+where category_id in (
+    select category_id
+    from products
+    group by category_id
+    having count(*) > 10
+);
+
+-- 22. Display customers who ordered products 101, 102, or 103.
+select customer_name
+from customers
+where customer_id in (
+	select customer_id
+    from orders
+    where product_id in (101, 102, 103)
+);
+
+-- 23. Find employees working in departments having more than 5 employees.
+select emp_name, dept_id
+from employees
+where dept_id in (
+	select dept_id
+    from employees
+    group by dept_id
+    having count(*) > 5
+);
+
+-- 24. Display students enrolled in courses handled by ‘John’.
+select s.student_name
+from students s join enrollments e on s.student_id = e.student_id
+where e.course_id in (
+	select c.course_id
+    from teachers t join courses c on t.teacher_id = c.teacher_id
+    where t.teacher_name = "John"
+);
+
+-- 25. Find employees whose salaries are among top 5 salaries.
+select emp_name
+from employees
+where salary in (
+	select salary from (
+		select distinct salary
+		from employees
+		order by salary desc
+		limit 5
+	) as top_five
+);
+
+-- 26. Display employees not working in departments located in Delhi.
+select emp_name
+from employees
+where dept_id not in (
+	select dept_id
+    from departments
+    where location = "Delhi"
+);
+
+-- 27. Find suppliers supplying products priced above 5000.
+select supplier_name
+from suppliers
+where supplier_id in (
+	select supplier_id
+    from products
+    where price > 5000
+);
+
+-- 28. Display books written by authors from India or USA.
+select title
+from books
+where author_id in (
+	select author_id
+    from authors
+    where country in ("India", "USA")
+);
+
+-- 29. Find employees whose department IDs exist in projects table.
+select emp_name
+from employees
+where dept_id in (
+	select dept_id
+    from projects
+);
+
+-- 30. Display customers who never ordered premium products.
+select customer_name
+from customers
+where customer_id not in (
+    select o.customer_id
+    from orders o join products p on o.product_id = p.product_id
+    where p.price > 50000
+);
+
+-- 31. Find students who scored marks matching toppers.
+select student_name
+from students
+where marks = (
+	select max(marks)
+    from students
+);
+
+-- 32. Display employees working in departments having average salary above 60000.
+select emp_name, dept_id
+from employees
+where dept_id in (
+	select dept_id
+	from employees
+	group by dept_id
+	having avg(salary) > 60000
+);
+
+-- 33. Find movies rated by multiple users.
+select movie_name
+from movies
+where movie_id in (
+	select movie_id
+    from ratings
+    group by movie_id
+    having count(*) > 1
+);
+
+-- 34. Display employees whose manager IDs appear in executive table.
+select emp_name
+from employees
+where manager_id in (
+	select manager_id
+    from executive
+);
+
+-- 35. Find projects handled by departments located in Mumbai.
+select project_name
+from projects
+where dept_id in (
+	select dept_id
+    from departments
+    where location = "Mumbai"
+);
+
+-- 36. Find employees earning more than the average salary of their department.
+select emp_name, salary, dept_id
+from employees e
+where salary > (
+	select avg(salary)
+    from employees
+    where dept_id = e.dept_id
+);
+
+-- 37. Display employees with the highest salary in each department.
+select emp_name, salary, dept_id
+from employees e
+where salary = (
+	select max(salary)
+    from employees
+    where dept_id = e.dept_id
+);
+
+-- 38. Find departments where average salary exceeds company average.
+select distinct e.dept_id
+from employees e
+where (
+	select avg(salary)
+    from employees
+    where dept_id = e.dept_id
+) > (
+	select avg(salary)
+    from employees
+);
+
+-- 39. Display customers who placed more orders than average customers.
+select c.customer_name
+from customers c
+where (
+	select count(*)
+    from orders o
+    where o.customer_id = c.customer_id
+) > (
+	select avg(order_count)
+    from (
+		select count(*) as order_count
+        from orders
+        group by customer_id
+    ) as avg
+);
+
+-- 40. Find products priced above category average price.
+select product_name
+from products p
+where price > (
+	select avg(price)
+    from products
+    where category_id = p.category_id
+);
+
+-- 41. Display students scoring above class average.
+select student_name
+from students
+where marks > (
+	select avg(marks)
+    from students
+);
+
+-- 42. Find employees hired first in each department.
+select emp_name
+from employees e1
+where hire_date = (
+	select min(hire_date)
+    from employees e2
+    where e1.dept_id = e2.dept_id
+);
+
+-- 43. Display books costing more than average price in their category.
+select title
+from books b1
+where price > (
+	select avg(price)
+    from books b2
+    where b1.category = b2.category
+);
+
+-- 44. Find employees whose salary is the maximum in their team.
+select emp_name
+from employees e1
+where salary = (
+	select max(salary)
+    from employees e2
+    where e1.dept_id = e2.dept_id
+);
+
+-- 45. Display branches having more employees than average branch size.
+select branch_name
+from branches b
+where (
+    select count(*)
+    from branch_employees be
+    where b.branch_id = be.branch_id
+) > (
+    select avg(branch_count)
+    from (
+        select count(*) as branch_count
+        from branch_employees
+        group by branch_id
+    ) as avg_table
+);
+
+-- 46. Find customers spending more than average customer spending.
+select customer_name
+from customers c
+where (
+    select sum(p.price * o.quantity)
+    from orders o
+    join products p
+    on o.product_id = p.product_id
+    where o.customer_id = c.customer_id
+) > (
+    select avg(total_spending)
+    from (
+        select sum(p.price * o.quantity) as total_spending
+        from orders o
+        join products p
+        on o.product_id = p.product_id
+        group by o.customer_id
+    ) as avg_table
+);
+
+-- 47. Display suppliers supplying more products than average suppliers.
+select supplier_name
+from suppliers s
+where (
+    select count(*)
+    from products p
+    where p.supplier_id = s.supplier_id
+) > (
+    select avg(product_count)
+    from (
+        select count(*) as product_count
+        from products
+        group by supplier_id
+    ) as avg_table
+);
+
+-- 48. Find departments with no employees.
+select dept_name
+from departments
+where dept_id not in (
+    select dept_id
+    from employees
+    where dept_id is not null
+);
+
+-- 49. Display products never ordered.
+select product_name
+from products
+where product_id not in (
+    select product_id
+    from orders
+);
+
+-- 50. Find employees whose salary is greater than all employees in another department.	
+select emp_name, salary
+from employees e1
+where exists (
+    select dept_id
+    from employees e2
+    where e1.dept_id <> e2.dept_id
+    group by dept_id
+    having e1.salary > max(e2.salary)
+);
